@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>TikTok & YouTube Video Downloader</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>🎥 TikTok & YouTube Video Downloader 🚀</h1>
+        <p>Enter the video URL below and click "Download"</p>
+        <input type="text" id="videoUrl" placeholder="Enter TikTok or YouTube URL">
+        <button onclick="downloadVideo()">Download</button>
+        <div id="result"></div>
+    </div>
+
+    <script>
+        async function downloadVideo() {
+            const url = document.getElementById('videoUrl').value.trim();
+            const apiUrl = `https://tele-social.vercel.app/down?url=${encodeURIComponent(url)}`;
+            
+            if (!url.startsWith("http://") && !url.startsWith("https://")) {
+                alert("❌ Please enter a valid TikTok or YouTube URL!");
+                return;
+            }
+
+            document.getElementById("result").innerHTML = "⏳ Processing...";
+
+            try {
+                const response = await fetch(apiUrl);
+                const data = await response.json();
+
+                if (data.status && data.data.video) {
+                    let videoUrl = data.data.video;
+                    
+                    // URL Shortening with TinyURL
+                    const shortResponse = await fetch(`https://tinyurl.com/api-create.php?url=${videoUrl}`);
+                    const shortUrl = await shortResponse.text();
+
+                    document.getElementById("result").innerHTML = `
+                        <h3>✅ Video Ready!</h3>
+                        <a href="${shortUrl}" target="_blank" class="download-btn">📥 Download Video</a>
+                    `;
+                } else {
+                    document.getElementById("result").innerHTML = "❌ Could not extract video!";
+                }
+            } catch (error) {
+                document.getElementById("result").innerHTML = "❌ Error processing request!";
+            }
+        }
+    </script>
+</body>
+</html>
